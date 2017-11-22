@@ -30,6 +30,13 @@ Lower | Parameter | Upper
  
 The code will not produce a spectrum for parameters outside these ranges. Note that the range for w_a depends on w_0.
 
+## Emupy
+
+Compiling `emupy` require `gsl`, `numpy` and `cython`. To build the extension (from ***emupy/***) run
+````sh
+python setup.py build_ext --inplace
+````
+
 ## Copyright and License
 
 Los Alamos National Security, LLC owns the copyright for this code. Please see LICENSE for copyright details.

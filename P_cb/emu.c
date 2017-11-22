@@ -3,22 +3,24 @@
 //  
 //
 //  Created by Earl Lawrence on 11/10/16.
+//  Modified by Michal Vrastil on 22/11/17
 //
 //
 
-#include <stdio.h>
+
 #include <math.h>
-#include <stdlib.h>
-#include <string.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_errno.h>
 
 #include "params.h"
+#include "emu.h"
+
+const int nmode=351;
 
 // Sizes of stuff
-static int m[2] = {111, 36}, neta=2808, peta[2]={7, 28}, rs=8, p=8, nmode=351;
+static int m[2] = {111, 36}, neta=2808, peta[2]={7, 28}, rs=8, p=8;
 
 // Kriging basis computed by emuInit
 // Sizes of each basis will be peta[ee] and m[ee]
@@ -31,7 +33,7 @@ static double lamws[2][28];
 static double lamz[2][28];
 
 // Initialization to compute the kriging basis for the two parts
-void emuInit() {
+static void emuInit() {
    
     int ee, i, j, k, l;
     double cov;
@@ -134,7 +136,7 @@ void emuInit() {
 } // emuInit()
 
 // Actual emulation
-void emu(double *xstar, double *ystar) {
+static void emu(double *xstar, double *ystar) {
     
     static double inited=0;
     int ee, i, j, k;
@@ -311,78 +313,7 @@ void emu(double *xstar, double *ystar) {
     }
 }
 
-int main(int argc, char **argv) {
-    
-    // A main function to be used as an example.
-    // Intensive use of the emulator should probably use something smarter.
-    
-    // Parameter order
-    // '\omega_m'   '\omega_b'   '\sigma_8'   'h'   'n_s'   'w_0'   'fw'   '\omega_{\nu}'
-    
-    double xstar[9]; // = {0.1335, 0.02258, 0.8, 0.71, 0.963, -1.0, 0.0, 0.0, .75};
-    double ystar[351];
-    int i, j;
-    FILE *infile;
-    FILE *outfile;
-    char instring[256];
-    char outname[256];
-    char *token;
-    int good = 1;
-    int ctr = 0;
-    char ctrc[100];
-    
-    // Read inputs from a file
-    // File should be space delimited with 9 numbers on each line
-    // '\omega_m'   '\omega_b'   '\sigma_8'   'h'   'n_s'   'w_0'   'w_a'   '\omega_{\nu}'   'z'
-    if((infile = fopen("xstar.dat","r"))==NULL) {
-        printf("Cannot find inputs.\n");
-        exit(1);
-    }
-    
-    // Read in the inputs and emulate the results.
-    while(good == 1) {
-        
-        // Read each line
-        if(fgets(instring, 256, infile) != NULL) {
-            token = strtok(instring, " ");
-            
-            // Parse each line, which is space delimited
-            for(i=0; i<9; i++) {
-                xstar[i] = atof(token);
-                token = strtok(NULL, " ");
-            }
-            
-            // Get the answer.
-            emu(xstar, ystar);
-            
-            // output file name
-            strcpy(outname, "EMU");
-            sprintf(ctrc, "%i", ctr);
-            strcat(outname, ctrc);
-            strcat(outname, ".txt");
-            
-            // Open the output file
-            if ((outfile = fopen(outname,"w"))==NULL) {
-                printf("cannot open %s \n",outname);
-                exit(1);
-            }
-            for(i=0; i<nmode; i++) {
-                fprintf(outfile, "%f %f \n", mode[i], ystar[i]);
-            }
-            fclose(outfile);
-            
-            ctr++;
-        } else {
-            good = 0;
-        }
-    }
-    fclose(infile);
-    
-    /*
+void emu_cb(double *xstar, double *ystar, double* ext_modes){
     emu(xstar, ystar);
-    for(i=0; i<351; i++) {
-        printf("%f %f \n", mode[i], ystar[i]);
-    }
-    printf("\n");
-    */
+    for(int i = 0; i < nmode; ++i) ext_modes[i] = mode[i];
 }
