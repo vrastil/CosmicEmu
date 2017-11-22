@@ -12,7 +12,7 @@
 
 #include "emu.h"
 
-extern const int nmode; // number of modes, defined in emu.c
+extern const int nmode_tot; // number of modes, defined in emu.c
 
 int main(int argc, char **argv) {
     
@@ -23,8 +23,8 @@ int main(int argc, char **argv) {
     // '\omega_m'   '\omega_b'   '\sigma_8'   'h'   'n_s'   'w_0'   'fw'   '\omega_{\nu}'
     
     double xstar[9]; // = {0.1335, 0.02258, 0.8, 0.71, 0.963, -1.0, 0.0, 0.0, .75};
-    double ystar[nmode];
-    double mode[nmode];
+    double ystar[nmode_tot];
+    double mode[nmode_tot];
 
     int i, j;
     FILE *infile;
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
                 printf("cannot open %s \n",outname);
                 exit(1);
             }
-            for(i=0; i<nmode; i++) {
+            for(i=0; i<nmode_tot; i++) {
                 fprintf(outfile, "%f %f \n", mode[i], ystar[i]);
             }
             fclose(outfile);
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     
     /*
     emu(xstar, ystar);
-    for(i=0; i<nmode; i++) {
+    for(i=0; i<nmode_tot; i++) {
         printf("%f %f \n", mode[i], ystar[i]);
     }
     printf("\n");

@@ -17,7 +17,7 @@
 #include "params.h"
 #include "emu.h"
 
-const int nmode=351;
+const int nmode_tot=351;
 
 // Sizes of stuff
 static int m[2] = {111, 36}, neta=2808, peta[2]={7, 28}, rs=8, p=8;
@@ -270,7 +270,7 @@ static void emu(double *xstar, double *ystar) {
         //printf("%f\n", ystaremu[i]);
         
         // Convert to P(k)
-        //ystaremu[i] = ystaremu[i] - 1.5*log10(mode[i % nmode]);
+        //ystaremu[i] = ystaremu[i] - 1.5*log10(mode[i % nmode_tot]);
         //ystaremu[i] = 2*M_PI*M_PI*pow(10, ystaremu[i]);
     }
     
@@ -289,9 +289,9 @@ static void emu(double *xstar, double *ystar) {
     
     // z doesn't match a training z, interpolate
     if(zmatch == -1) {
-        for(i=0; i<nmode; i++) {
+        for(i=0; i<nmode_tot; i++) {
             for(j=0; j<rs; j++) {
-                ybyz[rs-j-1] = ystaremu[j*nmode+i];
+                ybyz[rs-j-1] = ystaremu[j*nmode_tot+i];
             }
             gsl_spline_init(zinterp, z, ybyz, rs);
             ystar[i] = gsl_spline_eval(zinterp, xstar[p], accel);
@@ -301,13 +301,13 @@ static void emu(double *xstar, double *ystar) {
         gsl_spline_free(zinterp);
         gsl_interp_accel_free(accel);
     } else { //otherwise, copy in the emulated z without interpolating
-        for(i=0; i<nmode; i++) {
-            ystar[i] = ystaremu[zmatch*nmode + i];
+        for(i=0; i<nmode_tot; i++) {
+            ystar[i] = ystaremu[zmatch*nmode_tot + i];
         }
     }
     
     // Convert to P(k)
-    for(i=0; i<nmode; i++) {
+    for(i=0; i<nmode_tot; i++) {
         ystar[i] = ystar[i] - 1.5*log10(mode[i]) + log10(2) + 2*log10(M_PI);
         ystar[i] = pow(10, ystar[i]);
     }
@@ -315,5 +315,5 @@ static void emu(double *xstar, double *ystar) {
 
 void emu_tot(double *xstar, double *ystar, double* ext_modes){
     emu(xstar, ystar);
-    for(int i = 0; i < nmode; ++i) ext_modes[i] = mode[i];
+    for(int i = 0; i < nmode_tot; ++i) ext_modes[i] = mode[i];
 }
