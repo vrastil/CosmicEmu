@@ -32,7 +32,7 @@ The code will not produce a spectrum for parameters outside these ranges. Note t
 
 ## Emupy
 
-Compiling `emupy` require `gsl`, `numpy` and `cython`. To build the extension (from ***emupy/***) run
+Compiling `emupy` require `gsl`, `numpy`, `scipy` and `cython`. To build the extension (from **_emupy_/**) run
 ````sh
 python setup.py build_ext --inplace
 ````
